@@ -17,12 +17,12 @@ module.exports = function(app,db){
             if(err) {
                 return res.status(400).send({msg:"Error Occured while signing in, Please try again."});
             }
-            if(userData){
-                const accessToken = jwt.sign(data, "asdlkjasdlkj")
+            if(result){
+                const accessToken = jwt.sign({"username":userData.username}, "secretkeytodo")
                 console.log("accessToken", accessToken)
-                res.status(200).send(JSON.stringify({token:accessToken}));
+                return res.status(200).send(JSON.stringify({token:accessToken}));
             }else{
-                return res.status(400).send({msg:"Mail Id not registered, please sign up."});
+                return res.status(400).send({msg:"UserName not registered, please sign up."});
             }
         })
     })
@@ -35,14 +35,23 @@ module.exports = function(app,db){
             username: data.username,
             password: md5(data.password)
         }
-        db.collection('users').insertOne(userData, (err,result) => {
-            if(err) {
-                return res.send(err);
-            }
-            if(result.ops[0]){
-                const accessToken = jwt.sign(data, "asdlkjasdlkj")
-                res.status(200).send(JSON.stringify({token:accessToken}));
+        db.collection('users').findOne({"username":userData.username}, (err, result)=>{
+            if(result){
+                res.status(409).send({msg:"Username already exists, please choose another user name."});
+            }else{
+                db.collection('users').insertOne(userData, (err,result) => {
+                    if(err) {
+                        return res.status(400).send({msg:JSON.stringify(err)});
+                    }
+                    if(result.ops[0]){
+                        const accessToken = jwt.sign({"username":userData.username}, "secretkeytodo")
+                        res.status(200).send(JSON.stringify({token:accessToken}));
+                    }else{
+                        return res.status(400).send({msg:"Unable to create user."});
+                    }
+                })
             }
         })
+        
     })
 }

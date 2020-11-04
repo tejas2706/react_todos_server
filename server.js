@@ -6,21 +6,14 @@ const MongoClient = require('mongodb').MongoClient;
 const db = require('./config/db');
 const cors = require('cors');
 
-app.use(cors());
 app.use(bodyParser.urlencoded({extended:true}));
 app.use(bodyParser.json());
-app.use(function(req,res,next){ // For Cross Allowing Cross Origin Transfers (Among different ports)
-	res.header('Access-Control-Allow-Origin', ['*']);
-    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
-    res.header('Access-Control-Allow-Headers', 'Content-Type');
-    next();
-})
 
-const client = new MongoClient(db.url, { useNewUrlParser: true, useUnifiedTopology: true  });
+const client = new MongoClient(process.env.MONGO_URL || db.url, { useNewUrlParser: true, useUnifiedTopology: true  });
 client.connect( err =>{
 
     if(err) return console.log(err)
-    
+    app.use(cors());
     const db = client.db("test");
     require('./routes')(app,db);
 

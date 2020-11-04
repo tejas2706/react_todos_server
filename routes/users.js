@@ -15,7 +15,7 @@ module.exports = function(app,db){
         console.log("userData", userData);
         db.collection('users').findOne(userData,(err, result)=>{
             if(err) {
-                return res.status(400).send({msg:"Error Occured while signing in, Please try again."});
+                return res.status(400).send({msg:"Error Occured while Logging in, Please try again."});
             }
             if(result){
                 const accessToken = jwt.sign({"username":userData.username}, "secretkeytodo")
@@ -36,8 +36,11 @@ module.exports = function(app,db){
             password: md5(data.password)
         }
         db.collection('users').findOne({"username":userData.username}, (err, result)=>{
+            if(err){
+                return res.status(404).send({msg:"Error occured while signing up."});
+            }
             if(result){
-                res.status(409).send({msg:"Username already exists, please choose another user name."});
+                return res.status(409).send({msg:"Username already exists, please choose another user name."});
             }else{
                 db.collection('users').insertOne(userData, (err,result) => {
                     if(err) {

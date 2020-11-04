@@ -18,7 +18,7 @@ module.exports = function(app,db){
                 return res.status(400).send({msg:"Error Occured while Logging in, Please try again."});
             }
             if(result){
-                const accessToken = jwt.sign({"username":userData.username}, "secretkeytodo")
+                const accessToken = jwt.sign({"username":userData.username}, process.env.JWT_SECRET)
                 console.log("accessToken", accessToken)
                 return res.status(200).send(JSON.stringify({token:accessToken}));
             }else{
@@ -47,7 +47,7 @@ module.exports = function(app,db){
                         return res.status(400).send({msg:JSON.stringify(err)});
                     }
                     if(result.ops[0]){
-                        const accessToken = jwt.sign({"username":userData.username}, "secretkeytodo")
+                        const accessToken = jwt.sign({"username":userData.username}, process.env.JWT_SECRET)
                         res.status(200).send(JSON.stringify({token:accessToken}));
                     }else{
                         return res.status(400).send({msg:"Unable to create user."});

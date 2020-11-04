@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 module.exports = function(app,db){
     app.get('/todos',(req,res) => {
         let token = req.headers.authorization;
-        let decoded = jwt.verify(token, "secretkeytodo");
+        let decoded = jwt.verify(token, process.env.JWT_SECRET);
         if(decoded){
             db.collection('todos').find({"username":decoded.username}).toArray((err, result)=>{
                 if(err) {
@@ -20,7 +20,7 @@ module.exports = function(app,db){
 
     app.post('/todo', (req,res) => {
         let token = req.headers.authorization;
-        let decoded = jwt.verify(token, "secretkeytodo");
+        let decoded = jwt.verify(token, process.env.JWT_SECRET);
         if(decoded){
             const data = req.body;
             data.username = decoded.username;
@@ -39,7 +39,7 @@ module.exports = function(app,db){
     app.delete('/todo/:id',(req,res) => {
         const data = {_id: new ObjectID(req.params.id)};
         let token = req.headers.authorization;
-        let decoded = jwt.verify(token, "secretkeytodo");
+        let decoded = jwt.verify(token, process.env.JWT_SECRET);
         if(decoded){
             db.collection('todos').deleteOne(data, err => {
                 if(err) {
